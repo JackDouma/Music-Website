@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Randomized MP3 Files</title>
+    <title>JackWire</title>
 </head>
 <body>
 
@@ -74,7 +74,6 @@ var playlist = <?php echo json_encode($mp3Files); ?>;
 var currentIndex = 0;
 var currentSongName = "";
 var playlistTotal = <?php echo $playlistTotal; ?>;
-var inPlaylist = false;
 
 // play mp3
 function playAudio(filename) 
@@ -83,11 +82,6 @@ function playAudio(filename)
     audioPlayer.play();
     currentSongName = filename;
     updateCurrentSong();
-
-    if (inPlaylist == false)
-    {
-        removePlaylistCount();
-    }
 }
 
 // start playlist
@@ -95,7 +89,6 @@ function playPlaylist()
 {
     if (playlist.length > 0) 
     {
-        inPlaylist = true;
         currentIndex = 0;
         updatePlaylistCount(); 
         playAudio(playlist[currentIndex]);
@@ -171,20 +164,9 @@ function updatePlaylistCount()
 {
     playlistCountID.textContent = "In Playlist | " + (currentIndex + 1) + " / " + playlistTotal;
 }
-
-function removePlaylistCount() 
-{
-    playlistCountID.textContent = "";
-}
-
 function updateCurrentSong() 
 {
     currentSongID.textContent = "Current song: " + currentSongName;
-}
-
-function removeCurrentSong() 
-{
-    currentSongID.textContent = "";
 }
 function setVolume(volume) 
 {
