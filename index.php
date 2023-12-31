@@ -28,14 +28,20 @@ shuffle($mp3Files);
 <button onclick="playPlaylist()">Play Playlist</button>
 <button onclick="pauseAudio()">Pause</button>
 <button onclick="resumeAudio()">Resume</button>
-<button onclick="stopAllAudio()">Stop</button>
+
+<br><br>
+
+<button onclick="prevAudio()">Previous</button>
+<button onclick="nextAudio()">Next</button>
 
 <p id="playlistCountID"></p>
 <p id="currentSongID"></p>
+<p id="timerID"></p>
+<p id="pauseID"></p>
 
 <!-- volume control -->
 <label for="volumeControl">Volume: </label>
-<input type="range" id="volumeControl" min="0" max="2" step="0.2" value="1" onchange="setVolume(this.value)">
+<input type="range" id="volumeControl" min="0" max="2" step="0.1" value="1" onchange="setVolume(this.value)">
 
 <!-- list of songs -->
 <table border="1">
@@ -62,6 +68,8 @@ shuffle($mp3Files);
 var audioPlayer = document.getElementById("audioPlayer");
 var currentSongID = document.getElementById("currentSongID");
 var volumeControl = document.getElementById("volumeControl");
+var timerID = document.getElementById("timerID");
+var pauseID = document.getElementById("pauseID");
 var playlist = <?php echo json_encode($mp3Files); ?>;
 var currentIndex = 0;
 var currentSongName = "";
@@ -105,34 +113,63 @@ function playNextAudio()
     } 
     else 
     {
-        // if playlist reaches end, stop playing
-        stopAllAudio();
+        currentIndex = 0;
+        playAudio(playlist[currentIndex]);
     }
 }
 
-// stops audio
-function stopAllAudio() 
+// play previous song
+function prevAudio() 
 {
-    audioPlayer.pause();
-    audioPlayer.currentTime = 0;
-    removeCurrentSong();
-    removePlaylistCount()
+    if (currentIndex > 0) 
+    {
+        currentIndex--;
+        updatePlaylistCount(); 
+        playAudio(playlist[currentIndex]);
+    } 
+    // if at start, loop to end
+    else 
+    {
+        currentIndex = playlist.length - 1;
+        updatePlaylistCount(); 
+        playAudio(playlist[currentIndex]);
+    }
+}
+
+// play next song
+function nextAudio() 
+{
+    currentIndex++;
+    if (currentIndex < playlist.length) 
+    {
+        updatePlaylistCount(); 
+        playAudio(playlist[currentIndex]);
+    } 
+    // if at end, loop to start
+    else 
+    {
+        currentIndex = 0;
+        updatePlaylistCount(); 
+        playAudio(playlist[currentIndex]);
+    }
 }
 
 // pause audio
 function pauseAudio() 
 {
     audioPlayer.pause();
+    pauseID.textContent = "PAUSED";
 }
 
 function resumeAudio() 
 {
     audioPlayer.play();
+    pauseID.textContent = "";
 }
 
 function updatePlaylistCount() 
 {
-    playlistCountID.textContent = "In Playlist | " + (currentIndex + 1) + "/" + playlistTotal;
+    playlistCountID.textContent = "In Playlist | " + (currentIndex + 1) + " / " + playlistTotal;
 }
 
 function removePlaylistCount() 
@@ -153,6 +190,31 @@ function setVolume(volume)
 {
     audioPlayer.volume = volume;
 }
+
+// update timer display
+function updateTimer() 
+{
+    var currentTime = formatTime(audioPlayer.currentTime);
+    var totalTime = formatTime(audioPlayer.duration);
+    timerID.textContent = currentTime + " / " + totalTime;
+}
+
+// format time
+function formatTime(time) 
+{
+    var minutes = Math.floor(time / 60);
+    var seconds = Math.floor(time % 60);
+    return padZero(minutes) + ":" + padZero(seconds);
+}
+
+// add leading zero if needed
+function padZero(value) 
+{
+    return value < 10 ? "0" + value : value;
+}
+
+// listener
+audioPlayer.addEventListener("timeupdate", updateTimer);
 
 </script>
 </body>
