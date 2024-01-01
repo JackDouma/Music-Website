@@ -1,0 +1,15 @@
+.vineBoom 
+{
+    padding: 15px 20px; /* Adjust padding as needed */
+    font-size: 18px;   /* Adjust font size as needed */
+    background-color: #08a47c;
+    color: white;
+    border: none;
+    border-radius: 5px; /* Optional: Rounded corners */
+    cursor: pointer;
+}
+body.dark-mode
+{
+    color: #fff;
+    background-color: #000;
+}

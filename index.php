@@ -4,8 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JackWire</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<!-- battle pass -->
+<img src="battlepass.png" alt="battle pass" width="800" height="auto">
+<img src="obama.jpg" alt="obama" id="obamaID" width="500" height="auto">
+<div id="input-container">
+  <input type="text" id="textInput" placeholder="Enter Credit Card">
+  <button onclick="submitCreditCard()">Submit</button>
+</div>
+
+<p id="levelID"></p>
+<p id="expID"></p>
 
 <h1 style="color: lawngreen;">JackWire</h1>
 <?php
@@ -33,6 +44,8 @@ shuffle($mp3Files);
 
 <button onclick="prevAudio()">Previous</button>
 <button onclick="nextAudio()">Next</button>
+<br><br>
+<button id="vineBoomID" class="vineBoom" onclick="playVineBoom()">Vine Boom</button>
 
 <p id="playlistCountID"></p>
 <p id="currentSongID"></p>
@@ -70,10 +83,16 @@ var currentSongID = document.getElementById("currentSongID");
 var volumeControl = document.getElementById("volumeControl");
 var timerID = document.getElementById("timerID");
 var pauseID = document.getElementById("pauseID");
+var vineBoomID = document.getElementById("vineBoomID");
+vineBoomID.style.display = 'none';
+document.getElementById('obamaID').style.display = 'none';
+var exp = 0;
+var level = 0;
 var playlist = <?php echo json_encode($mp3Files); ?>;
 var currentIndex = 0;
 var currentSongName = "";
 var playlistTotal = <?php echo $playlistTotal; ?>;
+const body = document.body;
 
 // play mp3
 function playAudio(filename) 
@@ -82,8 +101,61 @@ function playAudio(filename)
     audioPlayer.play();
     currentSongName = filename;
     updateCurrentSong();
+    exp++;
+
+    // level up
+    if (exp == 5)
+    {
+        level++;
+        exp = 0;
+    }
+
+    // unlock vine boom
+    if (level == 3)
+    {
+        document.getElementById('vineBoomID').style.display = 'block';
+    }
+
+    // unlock obama
+    if (level == 6)
+    {
+        document.getElementById('obamaID').style.display = 'block';
+    }
+
+    // dark mode
+    if (level == 8)
+    {
+        body.classList.toggle('dark-mode');
+    }
+    updateEXP();
+    updateLevel();
 }
 
+function submitCreditCard()
+{
+    var levelID = document.getElementById("levelID");
+    var expID = document.getElementById("expID");
+    updateEXP();
+    updateLevel();
+
+    document.getElementById('input-container').style.display = 'none';
+}
+
+//battle pass
+function updateEXP() 
+{
+    expID.textContent = "Battle Pass EXP: " + exp + " / 5";
+}
+function updateLevel() 
+{
+    levelID.textContent = "Battle Pass Level: " + level;
+}
+
+function playVineBoom()
+{
+    audioPlayer.src = "vineboom.mp3";
+    audioPlayer.play();
+}
 // start playlist
 function playPlaylist() 
 {
@@ -114,50 +186,80 @@ function playNextAudio()
 // play previous song
 function prevAudio() 
 {
-    if (currentIndex > 0) 
+    if (level >= 5)
     {
-        currentIndex--;
-        updatePlaylistCount(); 
-        playAudio(playlist[currentIndex]);
-    } 
-    // if at start, loop to end
-    else 
+        if (currentIndex > 0) 
+        {
+            currentIndex--;
+            updatePlaylistCount(); 
+            playAudio(playlist[currentIndex]);
+        } 
+        // if at start, loop to end
+        else 
+        {
+            currentIndex = playlist.length - 1;
+            updatePlaylistCount(); 
+            playAudio(playlist[currentIndex]);
+        }
+        pauseID.textContent = "";
+    }
+    else
     {
-        currentIndex = playlist.length - 1;
-        updatePlaylistCount(); 
-        playAudio(playlist[currentIndex]);
+        pauseID.textContent = "Battle Pass Level must be 5";
     }
 }
 
 // play next song
 function nextAudio() 
 {
-    currentIndex++;
-    if (currentIndex < playlist.length) 
+    if (level >= 7)
     {
-        updatePlaylistCount(); 
-        playAudio(playlist[currentIndex]);
-    } 
-    // if at end, loop to start
-    else 
+        currentIndex++;
+        if (currentIndex < playlist.length) 
+        {
+            updatePlaylistCount(); 
+            playAudio(playlist[currentIndex]);
+        } 
+        // if at end, loop to start
+        else 
+        {
+            currentIndex = 0;
+            updatePlaylistCount(); 
+            playAudio(playlist[currentIndex]);
+        }
+        pauseID.textContent = "";
+    }
+    else
     {
-        currentIndex = 0;
-        updatePlaylistCount(); 
-        playAudio(playlist[currentIndex]);
+        pauseID.textContent = "Battle Pass Level must be 7";
     }
 }
 
 // pause audio
 function pauseAudio() 
 {
-    audioPlayer.pause();
-    pauseID.textContent = "PAUSED";
+    if (level >= 2)
+    {
+        audioPlayer.pause();
+        pauseID.textContent = "PAUSED";
+    }
+    else
+    {
+        pauseID.textContent = "Battle Pass Level must be 2";
+    }
 }
 
 function resumeAudio() 
 {
-    audioPlayer.play();
-    pauseID.textContent = "";
+    if (level >= 1)
+    {
+        audioPlayer.play();
+        pauseID.textContent = "";
+    }
+    else
+    {
+        pauseID.textContent = "Battle Pass Level must be 1";
+    }
 }
 
 function updatePlaylistCount() 
@@ -170,7 +272,15 @@ function updateCurrentSong()
 }
 function setVolume(volume) 
 {
-    audioPlayer.volume = volume;
+    if (level >= 4)
+    {
+        audioPlayer.volume = volume;
+        pauseID.textContent = "";
+    }
+    else
+    {
+        pauseID.textContent = "Battle Pass Level must be 4";
+    }
 }
 
 // update timer display
